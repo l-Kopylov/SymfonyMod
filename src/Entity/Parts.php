@@ -31,6 +31,11 @@ class Parts
     {
         $this->comments = new ArrayCollection();
     }
+    
+    public function __toString(): string
+    {
+        return $this->name.' '.$this->price;
+    }
 
     public function getId(): ?int
     {
