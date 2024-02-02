@@ -21,7 +21,7 @@ class BlockController extends AbstractController{
                 ]);
     }
 
-        #[Route('/parts/{id}', name: 'parts')]
+        #[Route('/parts/{slug}', name: 'parts')]
     public function show(Request $request, Parts $parts, CommentRepository $commentRepository, PartsRepository $partsRepository): Response
     {
         $offset = max(0, $request->query->getInt('offset', 0));

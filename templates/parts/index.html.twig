@@ -8,7 +8,7 @@
     {% for parts in parts %}
         <h4>{{ parts }}</h4>
        <p>
-            <a href="{{ path('parts', { id: parts.id }) }}">View</a>
+            <a href="{{ path('parts', { slug: parts.slug }) }}">View</a>
         </p>
     {% endfor %}
 {% endblock %}
