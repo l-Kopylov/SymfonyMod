@@ -22,16 +22,17 @@ class BlockController extends AbstractController{
     }
 
         #[Route('/parts/{id}', name: 'parts')]
-    public function show(Request $request, Parts $parts, CommentRepository $commentRepository): Response
+    public function show(Request $request, Parts $parts, CommentRepository $commentRepository, PartsRepository $partsRepository): Response
     {
         $offset = max(0, $request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentPaginator($parts, $offset);
 
         return $this->render('parts/show.html.twig', [
-            'parts' => $parts,
+            'partsall' => $partsRepository->findAll(),
+            'parts'    => $parts,
             'comments' => $paginator,
             'previous' => $offset - CommentRepository::PAGINATOR_PER_PAGE,
-            'next' => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
+            'next'     => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
         ]);
     }
 }
