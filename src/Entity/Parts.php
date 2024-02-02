@@ -6,8 +6,10 @@ use App\Repository\PartsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: PartsRepository::class)]
+#[UniqueEntity('slug')]
 class Parts
 {
     #[ORM\Id]
@@ -26,6 +28,9 @@ class Parts
 
     #[ORM\OneToMany(mappedBy: 'parts', targetEntity: Comment::class, orphanRemoval: true)]
     private Collection $comments;
+
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $slug = null;
 
     public function __construct()
     {
@@ -104,6 +109,18 @@ class Parts
                 $comment->setParts(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }
