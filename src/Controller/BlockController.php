@@ -6,6 +6,7 @@ use App\Entity\Parts;
 use App\Repository\CommentRepository;
 use App\Repository\PartsRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
@@ -13,19 +14,24 @@ use Twig\Environment;
 
 class BlockController extends AbstractController{
     #[Route('/', name: 'homepage')]
-    public function index(Environment $twig, PartsRepository $partsRepository): Response
+    public function index(PartsRepository $partsRepository): Response
     {
-            return new Response($twig->render('parts/index.html.twig', [
+            return $this->render('parts/index.html.twig', [
                     'parts' => $partsRepository->findAll(),
-                ]));
+                ]);
     }
 
         #[Route('/parts/{id}', name: 'parts')]
-    public function show(Environment $twig, Parts $parts, CommentRepository $commentRepository): Response
+    public function show(Request $request, Parts $parts, CommentRepository $commentRepository): Response
     {
-        return new Response($twig->render('parts/show.html.twig', [
+        $offset = max(0, $request->query->getInt('offset', 0));
+        $paginator = $commentRepository->getCommentPaginator($parts, $offset);
+
+        return $this->render('parts/show.html.twig', [
             'parts' => $parts,
-            'comments' => $commentRepository->findBy(['parts' => $parts], ['createdAt' => 'DESC']),
-        ]));
+            'comments' => $paginator,
+            'previous' => $offset - CommentRepository::PAGINATOR_PER_PAGE,
+            'next' => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
+        ]);
     }
 }

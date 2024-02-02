@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Comment;
 use App\Entity\Parts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -20,6 +21,8 @@ class PartsRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Parts::class);
     }
+
+
 
 //    /**
 //     * @return Parts[] Returns an array of Parts objects
