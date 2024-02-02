@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Тип запчастей - {{ parts }}{% endblock %}
+
+{% block body %}
+    <h2>{{ parts }} Раздел постов </h2>
+
+    {% if comments|length > 0 %}
+    <div>Здесь {{ comments|length }} записей.</div>
+        {% for comment in comments %}
+            {% if comment.photofilename %}
+                <img src="{{ asset('uploads/photos/' ~ comment.photofilename) }}" style="max-width: 200px" />
+            {% endif %}
+
+            <h4>{{ comment.autor }}</h4>
+            <small>
+                {{ comment.createdAt|format_datetime('medium', 'short') }}
+            </small>
+
+            <p>{{ comment.text }}</p>
+        {% endfor %}
+        {% if previous >= 0 %}
+            <a href="{{ path('parts', { id: parts.id, offset: previous }) }}"><Назад</a>
+        {% endif %}
+        {% if next < comments|length %}
+            <a href="{{ path('parts', { id: parts.id, offset: next }) }}">Вперед></a>
+        {% endif %}
+    {% else %}
+        <div>No comments have been posted yet for this parts.</div>
+    {% endif %}
+{% endblock %}

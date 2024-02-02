@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Тип запчастей{% endblock %}
+
+{% block body %}
+    <h2>Give your feedback!</h2>
+
+    {% for parts in parts %}
+        <h4>{{ parts }}</h4>
+       <p>
+            <a href="{{ path('parts', { id: parts.id }) }}">View</a>
+        </p>
+    {% endfor %}
+{% endblock %}
