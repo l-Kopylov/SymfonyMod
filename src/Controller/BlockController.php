@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+
+use App\Entity\Comment;
 use App\Entity\Parts;
+use App\Form\CommentType;
 use App\Repository\CommentRepository;
 use App\Repository\PartsRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,6 +27,9 @@ class BlockController extends AbstractController{
         #[Route('/parts/{slug}', name: 'parts')]
     public function show(Request $request, Parts $parts, CommentRepository $commentRepository, PartsRepository $partsRepository): Response
     {
+        $comment = new Comment();
+        $form = $this->createForm(CommentType::class, $comment);
+
         $offset = max(0, $request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentPaginator($parts, $offset);
 
@@ -33,6 +39,7 @@ class BlockController extends AbstractController{
             'comments' => $paginator,
             'previous' => $offset - CommentRepository::PAGINATOR_PER_PAGE,
             'next'     => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
+            'comment_form' => $form,
         ]);
     }
 }
