@@ -8,6 +8,7 @@ use App\Entity\Parts;
 use App\Form\CommentType;
 use App\Repository\CommentRepository;
 use App\Repository\PartsRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,11 @@ use Twig\Environment;
 
 
 class BlockController extends AbstractController{
+    public function __construct(
+        private EntityManagerInterface $entityManager,)
+         {
+        }
+    
     #[Route('/', name: 'homepage')]
     public function index(PartsRepository $partsRepository): Response
     {
@@ -29,6 +35,15 @@ class BlockController extends AbstractController{
     {
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $comment->setParts($parts);
+
+            $this->entityManager->persist($comment);
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('parts', ['slug' => $parts->getSlug()]);
+        }
 
         $offset = max(0, $request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentPaginator($parts, $offset);
