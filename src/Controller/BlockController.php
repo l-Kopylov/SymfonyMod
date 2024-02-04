@@ -10,6 +10,7 @@ use App\Repository\CommentRepository;
 use App\Repository\PartsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -31,13 +32,24 @@ class BlockController extends AbstractController{
     }
 
         #[Route('/parts/{slug}', name: 'parts')]
-    public function show(Request $request, Parts $parts, CommentRepository $commentRepository, PartsRepository $partsRepository): Response
-    {
+        public function show(
+                Request $request,
+                Parts $parts,
+                CommentRepository $commentRepository,
+                #[Autowire('%photo_dir%')] string $photoDir,
+            ): Response
+        {    
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $comment->setParts($parts);
+            if ($photo = $form['photo']->getData()) {
+                $filename = bin2hex(random_bytes(6)).'.'.$photo->guessExtension();
+                $photo->move($photoDir, $filename);
+                $comment->setPhotoFilename($filename);
+            }
+                
 
             $this->entityManager->persist($comment);
             $this->entityManager->flush();
@@ -49,7 +61,7 @@ class BlockController extends AbstractController{
         $paginator = $commentRepository->getCommentPaginator($parts, $offset);
 
         return $this->render('parts/show.html.twig', [
-            'partsall' => $partsRepository->findAll(),
+            // 'partsall' => $partsRepository->findAll(),
             'parts'    => $parts,
             'comments' => $paginator,
             'previous' => $offset - CommentRepository::PAGINATOR_PER_PAGE,
