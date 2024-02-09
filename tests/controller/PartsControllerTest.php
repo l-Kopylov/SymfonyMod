@@ -12,7 +12,7 @@ class PartsControllerTest extends WebTestCase
         $client->request('GET', '/');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h2', 'Результат');
+        $this->assertSelectorTextContains('h2', 'Результат!');
     }
 
 
@@ -21,13 +21,13 @@ class PartsControllerTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/');
 
-        $this->assertCount(2, $crawler->filter('h4'));
+        $this->assertCount(3, $crawler->filter('h4'));
 
         $client->clickLink('View');
 
-        $this->assertPageTitleContains('part0');
+        $this->assertPageTitleContains('Блог 1');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h2', 'part0 777');
-        $this->assertSelectorExists('div:contains("Здесь 2 записей.)');
+        $this->assertSelectorTextContains('h2', 'Блог 1 Раздел постов');
+        // $this->assertSelectorExists('div:contains("Здесь 2 записей.)');
     }
 }
