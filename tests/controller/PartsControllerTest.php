@@ -4,7 +4,7 @@ namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class ConferenceControllerTest extends WebTestCase
+class PartsControllerTest extends WebTestCase
 {
     public function testIndex()
     {
@@ -12,11 +12,11 @@ class ConferenceControllerTest extends WebTestCase
         $client->request('GET', '/');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h2', 'Give your feedback');
+        $this->assertSelectorTextContains('h2', 'Результат');
     }
 
 
-    public function testConferencePage()
+    public function testPartsPage()
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/');
@@ -25,9 +25,9 @@ class ConferenceControllerTest extends WebTestCase
 
         $client->clickLink('View');
 
-        $this->assertPageTitleContains('Amsterdam');
+        $this->assertPageTitleContains('part0');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h2', 'Amsterdam 2019');
-        $this->assertSelectorExists('div:contains("There are 1 comments")');
+        $this->assertSelectorTextContains('h2', 'part0 777');
+        $this->assertSelectorExists('div:contains("Здесь 2 записей.)');
     }
 }
