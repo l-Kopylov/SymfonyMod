@@ -8,6 +8,7 @@ use App\Entity\Parts;
 use App\Form\CommentType;
 use App\Repository\CommentRepository;
 use App\Repository\PartsRepository;
+use App\SpamChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -36,6 +37,7 @@ class BlockController extends AbstractController{
                 Request $request,
                 Parts $parts,
                 CommentRepository $commentRepository,
+                SpamChecker $spamChecker,
                 #[Autowire('%photo_dir%')] string $photoDir,
             ): Response
         {    
@@ -52,6 +54,17 @@ class BlockController extends AbstractController{
                 
 
             $this->entityManager->persist($comment);
+
+            $context = [
+                'user_ip' => $request->getClientIp(),
+                'user_agent' => $request->headers->get('user-agent'),
+                'referrer' => $request->headers->get('referer'),
+                'permalink' => $request->getUri(),
+            ];
+            if (2 === $spamChecker->getSpamScore($comment, $context)) {
+                throw new \RuntimeException('Blatant spam, go away!');
+            }
+
             $this->entityManager->flush();
 
             return $this->redirectToRoute('parts', ['slug' => $parts->getSlug()]);
