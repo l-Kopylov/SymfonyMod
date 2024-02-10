@@ -30,4 +30,19 @@ class PartsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('h2', 'Блог 1 Раздел постов');
         // $this->assertSelectorExists('div:contains("Здесь 2 записей.)');
     }
+    public function testCommentSubmission()
+    {
+        $client = static::createClient();
+        $client->request('GET', '/parts/part0-777');
+        $client->submitForm('Submit', [
+            'comment[autor]' => 'Fabien',
+            'comment[text]' => 'Some feedback from an automated functional test',
+            'comment[email]' => 'me@autoimat.ed',
+            'comment[photo]' => dirname(__DIR__, 2).'/public/images/service.gif',
+        ]);
+        $this->assertResponseRedirects();
+        $client->followRedirect();
+        
+        $this->assertSelectorExists('div:contains("Здесь 2 записей.")');
+    }
 }

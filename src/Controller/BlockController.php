@@ -26,7 +26,9 @@ class BlockController extends AbstractController{
     
     #[Route('/', name: 'homepage')]
     public function index(PartsRepository $partsRepository): Response
-    {
+    {       
+            $akskey = $_ENV['AKISMET_KEY'];
+            var_dump($akskey);
             return $this->render('parts/index.html.twig', [
                     'parts' => $partsRepository->findAll(),
                 ]);
