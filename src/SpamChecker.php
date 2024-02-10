@@ -28,7 +28,7 @@ class SpamChecker
             'body' => array_merge($context, [
                 'blog' => 'sym.local/parts/part1-555',
                 'comment_type' => 'comment',
-                'comment_autor' => $comment->getAutor(),
+                'comment_author' => $comment->getAutor(),
                 'comment_author_email' => $comment->getEmail(),
                 'comment_content' => $comment->getText(),
                 'comment_date_gmt' => $comment->getCreatedAt()->format('c'),

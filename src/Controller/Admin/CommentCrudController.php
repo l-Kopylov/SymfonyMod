@@ -46,6 +46,8 @@ class CommentCrudController extends AbstractCrudController
             ->setLabel('Photo')
         ;
 
+        yield TextField::new('state');
+
         $createdAt = DateTimeField::new('createdAt')->setFormTypeOptions([
             'years' => range(date('Y'), date('Y') + 5),
             'widget' => 'single_text',

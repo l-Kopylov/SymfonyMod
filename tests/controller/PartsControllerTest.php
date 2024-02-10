@@ -2,6 +2,8 @@
 
 namespace App\Tests\Controller;
 
+use App\Repository\CommentRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class PartsControllerTest extends WebTestCase
@@ -36,13 +38,17 @@ class PartsControllerTest extends WebTestCase
         $client->request('GET', '/parts/part0-777');
         $client->submitForm('Submit', [
             'comment[autor]' => 'Fabien',
-            'comment[text]' => 'Some feedback from an automated functional test',
-            'comment[email]' => 'me@autoimat.ed',
+            'comment[text]'  => 'Some feedback from an automated functional test',
+            'comment[email]' => $email ='me@autoimat.ed',
             'comment[photo]' => dirname(__DIR__, 2).'/public/images/service.gif',
         ]);
         $this->assertResponseRedirects();
+
+        $comment = self::getContainer()->get(CommentRepository::class)->findOneByEmail($email);
+        $comment->setState('published');
+        self::getContainer()->get(EntityManagerInterface::class)->flush();
+
         $client->followRedirect();
-        
         $this->assertSelectorExists('div:contains("Здесь 2 записей.")');
     }
 }

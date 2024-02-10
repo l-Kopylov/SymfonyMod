@@ -6,21 +6,23 @@ namespace App\Controller;
 use App\Entity\Comment;
 use App\Entity\Parts;
 use App\Form\CommentType;
+use App\Message\CommentMessage;
 use App\Repository\CommentRepository;
 use App\Repository\PartsRepository;
-use App\SpamChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Twig\Environment;
 
 
 class BlockController extends AbstractController{
     public function __construct(
-        private EntityManagerInterface $entityManager,)
+        private EntityManagerInterface $entityManager,
+        private MessageBusInterface $bus,)
          {
         }
     
@@ -39,15 +41,17 @@ class BlockController extends AbstractController{
                 Request $request,
                 Parts $parts,
                 CommentRepository $commentRepository,
-                SpamChecker $spamChecker,
                 #[Autowire('%photo_dir%')] string $photoDir,
             ): Response
-        {    
+        {  
+
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
             $comment->setParts($parts);
+
             if ($photo = $form['photo']->getData()) {
                 $filename = bin2hex(random_bytes(6)).'.'.$photo->guessExtension();
                 $photo->move($photoDir, $filename);
@@ -56,6 +60,7 @@ class BlockController extends AbstractController{
                 
 
             $this->entityManager->persist($comment);
+            $this->entityManager->flush();
 
             $context = [
                 'user_ip' => $request->getClientIp(),
@@ -63,11 +68,8 @@ class BlockController extends AbstractController{
                 'referrer' => $request->headers->get('referer'),
                 'permalink' => $request->getUri(),
             ];
-            if (2 === $spamChecker->getSpamScore($comment, $context)) {
-                throw new \RuntimeException('Blatant spam, go away!');
-            }
 
-            $this->entityManager->flush();
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
 
             return $this->redirectToRoute('parts', ['slug' => $parts->getSlug()]);
         }
