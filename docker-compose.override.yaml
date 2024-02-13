@@ -12,9 +12,4 @@ services:
   mailer:
     image: schickling/mailcatcher
     ports: [1025, 1080]
-    environment:
-      # А так задаются переменные окружения
-      POSTGRES_PASSWORD: passwordtest
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-  
+    
